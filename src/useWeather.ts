@@ -5,11 +5,11 @@ import {
   type MouseEvent,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState
 } from 'react'
 
+const API_KEY = import.meta.env.VITE_WEATHER_API_KEY as string
 interface Weather {
   name: string
   main: {
@@ -29,10 +29,6 @@ export const useWeather = () => {
   const [weather, setWeather] = useState<Weather | null>(null)
   const [error, setError] = useState('')
 
-  const API_KEY = useMemo(
-    () => import.meta.env.VITE_WEATHER_API_KEY,
-    []
-  ) as string
   const mirrorCityState = useRef<string>(city)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -40,23 +36,20 @@ export const useWeather = () => {
     mirrorCityState.current = city
   }, [city])
 
-  const getWeather = useCallback(
-    async (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault()
+  const getWeather = useCallback(async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
 
-      try {
-        const response = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?q=${mirrorCityState.current}&APPID=${API_KEY}`
-        )
-        setWeather(response.data)
-        setError('')
-      } catch (err) {
-        setError('City not found')
-        setWeather(null)
-      }
-    },
-    [API_KEY]
-  )
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${mirrorCityState.current}&APPID=${API_KEY}`
+      )
+      setWeather(response.data)
+      setError('')
+    } catch (err) {
+      setError('City not found')
+      setWeather(null)
+    }
+  }, [])
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) =>
     setCity(event.target.value)
